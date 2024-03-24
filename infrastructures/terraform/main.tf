@@ -87,25 +87,76 @@ resource "aws_db_parameter_group" "main" {
   family = data.aws_rds_engine_version.main.parameter_group_family
 }
 
+resource "aws_kms_alias" "main_master_user_secret" {
+  name = "alias/${local.project_name}-aurora-master-user-credentials"
+  target_key_id = aws_kms_key.main_master_user_secret.arn
+}
+resource "aws_kms_key" "main_master_user_secret" {
+  description = "aurora master user credentials for ${local.project_name}"
+  deletion_window_in_days = 7
+  policy = data.aws_iam_policy_document.main_master_user_secret.json
+}
+data "aws_iam_policy_document" "main_master_user_secret" {
+  statement {
+    principals {
+      type = "AWS"
+      identifiers = ["arn:${local.aws_partition}:iam::${local.aws_account_id}:root"]
+    }
+    actions = ["kms:*"]
+    resources = ["*"]
+  }
+}
+
 resource "aws_rds_cluster" "main" {
   # identity
   cluster_identifier = local.project_name
+  copy_tags_to_snapshot = true
 
-  # network
+  # networking
   availability_zones = local.aws_azs
   db_subnet_group_name = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.aurora]
+  vpc_security_group_ids = [aws_security_group.aurora.id]
 
+  # db version
   engine = "aurora-mysql"
   engine_version = data.aws_rds_engine_version.main.version_actual
 
+  # db configuration
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.main.name
-
   master_username = "root"
   manage_master_user_password = true
+  master_user_secret_kms_key_id = aws_kms_key.main_master_user_secret.arn
+
+  # database deletion
+  deletion_protection = false
+  skip_final_snapshot = true
 }
 
 resource "aws_security_group" "aurora" {
   name = "${local.project_name}-aurora"
   vpc_id = data.aws_vpc._.id
 }
+
+# resource "aws_rds_cluster_instance" "main" {
+#   count = 2
+
+#   # identity
+#   cluster_identifier = aws_rds_cluster.main.cluster_identifier
+#   identifier = "${local.project_name}-${format("%02d", count.index)}"
+#   copy_tags_to_snapshot = true
+
+#   # networking
+#   publicly_accessible = false
+#   db_subnet_group_name = aws_db_subnet_group.main.name
+
+#   # instance resource
+#   instance_class = "db.t4g.medium"
+
+#   # db version
+#   engine = aws_rds_cluster.main.engine
+#   engine_version = aws_rds_cluster.main.engine_version
+
+#   # db configuration
+#   db_parameter_group_name = aws_db_parameter_group.main.name
+
+# }
