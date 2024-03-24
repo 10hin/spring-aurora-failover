@@ -1,0 +1,26 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: aurora-failover
+  region: ap-northeast-1
+  version: '1.29'
+  tags:
+    Purpose: AuroraFailover
+
+iam:
+  withOIDC: true
+  serviceAcounts:
+    - metadata:
+        name: apps
+        namespace: default
+      roleName: aurora-spring-railover-default-apps
+      tags:
+        Purpose: AuroraFailover
+
+fargateProfiles:
+  - name: 
+    selectors:
+      - namespace: kube-system
+      - namespace: default
+    tags:
+      Purpose: AuroraFailover
