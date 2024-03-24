@@ -9,16 +9,16 @@ metadata:
 
 iam:
   withOIDC: true
-  serviceAcounts:
-    - metadata:
-        name: apps
-        namespace: default
-      roleName: aurora-spring-railover-default-apps
-      tags:
-        Purpose: AuroraFailover
+  serviceAccounts:
+    # - metadata:
+    #     name: apps
+    #     namespace: default
+    #   roleName: aurora-spring-railover-default-apps
+    #   tags:
+    #     Purpose: AuroraFailover
 
 fargateProfiles:
-  - name: 
+  - name: fp-default
     selectors:
       - namespace: kube-system
       - namespace: default
