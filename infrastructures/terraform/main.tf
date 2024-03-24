@@ -94,7 +94,7 @@ resource "aws_rds_cluster" "main" {
   # network
   availability_zones = local.aws_azs
   db_subnet_group_name = aws_db_subnet_group.main.name
-  vpc_security_group_ids = []
+  vpc_security_group_ids = [aws_security_group.aurora]
 
   engine = "aurora-mysql"
   engine_version = data.aws_rds_engine_version.main.version_actual
