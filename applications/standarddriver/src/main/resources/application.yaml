@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: standarddriver
+  datasource:
+    writer:
+      url: jdbc:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
+      username: root
+      password: password
+      driverClassName: com.mysql.cj.jdbc.Driver
+      hikari:
+        autoCommit: false
+        connectionTimeout: 10000
+        idleTimeout: 30000
+        maxLifetime: 1800000
+        minimumIdle: 3
+        maximumPoolSize: 10
+        read-only: false
+    reader:
+      url: jdbc:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
+      username: root
+      password: password
+      driverClassName: com.mysql.cj.jdbc.Driver
+      hikari:
+        autoCommit: false
+        connectionTimeout: 10000
+        idleTimeout: 30000
+        maxLifetime: 1800000
+        minimumIdle: 3
+        maximumPoolSize: 10
+        read-only: true

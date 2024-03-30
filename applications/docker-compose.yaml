@@ -1,0 +1,10 @@
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=spring_aurora_failover
+    volumes:
+      - ./sql/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql:ro
+    ports:
+      - 3306:3306

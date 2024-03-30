@@ -126,6 +126,7 @@ resource "aws_rds_cluster" "main" {
   master_username = "root"
   manage_master_user_password = true
   master_user_secret_kms_key_id = aws_kms_key.main_master_user_secret.arn
+  database_name = "spring_aurora_failover"
 
   # database deletion
   deletion_protection = false
@@ -137,26 +138,26 @@ resource "aws_security_group" "aurora" {
   vpc_id = data.aws_vpc._.id
 }
 
-# resource "aws_rds_cluster_instance" "main" {
-#   count = 2
+resource "aws_rds_cluster_instance" "main" {
+  count = 2
 
-#   # identity
-#   cluster_identifier = aws_rds_cluster.main.cluster_identifier
-#   identifier = "${local.project_name}-${format("%02d", count.index)}"
-#   copy_tags_to_snapshot = true
+  # identity
+  cluster_identifier = aws_rds_cluster.main.cluster_identifier
+  identifier = "${local.project_name}-${format("%02d", count.index)}"
+  copy_tags_to_snapshot = true
 
-#   # networking
-#   publicly_accessible = false
-#   db_subnet_group_name = aws_db_subnet_group.main.name
+  # networking
+  publicly_accessible = false
+  db_subnet_group_name = aws_db_subnet_group.main.name
 
-#   # instance resource
-#   instance_class = "db.t4g.medium"
+  # instance resource
+  instance_class = "db.t4g.medium"
 
-#   # db version
-#   engine = aws_rds_cluster.main.engine
-#   engine_version = aws_rds_cluster.main.engine_version
+  # db version
+  engine = aws_rds_cluster.main.engine
+  engine_version = aws_rds_cluster.main.engine_version
 
-#   # db configuration
-#   db_parameter_group_name = aws_db_parameter_group.main.name
+  # db configuration
+  db_parameter_group_name = aws_db_parameter_group.main.name
 
-# }
+}
