@@ -14,7 +14,7 @@ then
   terraform -chdir=infrastructures/terraform/ apply destroy.plan.out
 fi
 
-if ! eksctl get cluster -f infrastructures/eksctl/cluster.yaml &> /dev/null
+if eksctl get cluster -f infrastructures/eksctl/cluster.yaml &> /dev/null
 then
   eksctl delete cluster -w -f infrastructures/eksctl/cluster.yaml
 fi
