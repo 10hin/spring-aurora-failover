@@ -1,0 +1,19 @@
+#!/bin/bastion
+set -euvx
+
+dnf update -y
+dnf install -y \
+  jq \
+  mariadb105 \
+  ;
+
+aurora_password="$(\
+  aws secretsmanager get-secret-value \
+    --secret-id '${aurora_secret_arn}' \
+    --query SecretString \
+    --output text \
+    | jq -r '.password' \
+  )"
+mariadb -h '${aurora_endpoint}' -u root -p"$${aurora_password}" '${database_name}' <<'EOT'
+${aurora_ddl}
+EOT

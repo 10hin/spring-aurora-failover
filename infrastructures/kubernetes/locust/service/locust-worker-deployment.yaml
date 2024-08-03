@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: locust-worker
+  name: locust-worker
+  namespace: locust
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: locust-worker
+  template:
+    metadata:
+      labels:
+        app: locust-worker
+    spec:
+      containers:
+        - name: locust
+          image: locustio/locust:2.29.1
+          command:
+            - locust
+            - -f
+            - '-'
+            - --worker
+            - --master-host
+            - locust-master.locust.svc.cluster.local
+          resources:
+            limits:
+              cpu: 250m
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+      

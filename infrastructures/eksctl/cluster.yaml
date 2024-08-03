@@ -13,14 +13,23 @@ iam:
     # - metadata:
     #     name: apps
     #     namespace: default
-    #   roleName: aurora-spring-railover-default-apps
+    #   roleName: aurora-spring-failover-default-apps
     #   tags:
     #     Purpose: AuroraFailover
+    - metadata:
+        name: external-secrets
+        namespace: external-secrets
+      attachPolicy: {}
+      roleName: aurora-spring-failover-eso
+      tags:
+        Purpose: AuroraFailover
 
 fargateProfiles:
   - name: fp-default
     selectors:
       - namespace: kube-system
       - namespace: default
+      - namespace: external-secrets
+      - namespace: locust
     tags:
       Purpose: AuroraFailover

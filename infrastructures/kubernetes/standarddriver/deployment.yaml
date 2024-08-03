@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: standarddriver
+  namespace: default
+  labels:
+    app: standarddriver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: standarddriver
+  template:
+    metadata:
+      labels:
+        app: standarddriver
+    spec:
+      containers:
+        - name: standarddriver
+          image: 129008548655.dkr.ecr.ap-northeast-1.amazonaws.com/github.com/10hin/spring-aurora-failover/standarddriver:latest
+          ports:
+            - name: web
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: '1'
+              memory: 4Gi
+            requests:
+              cpu: '1'
+              memory: 4Gi
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: aurora-secret
+              mountPath: /workspace/config/application.yaml
+              subPath: application.yaml
+      volumes:
+        - name: aurora-secret
+          secret:
+            secretName: aurora-secret
