@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: awsdriver
+  datasource:
+    writer:
+      url: jdbc:aws-wrapper:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
+      username: root
+      password: password
+      driver-class-name: software.amazon.jdbc.Driver
+      hikari:
+        exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException
+        autoCommit: false
+        connectionTimeout: 10000
+        idleTimeout: 30000
+        maxLifetime: 1800000
+        minimumIdle: 3
+        maximumPoolSize: 10
+        read-only: false
+        data-source-properties:
+          keepSessionStateOnFailover: true
+    reader:
+      url: jdbc:aws-wrapper:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
+      username: root
+      password: password
+      driver-class-name: software.amazon.jdbc.Driver
+      hikari:
+        exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException
+        autoCommit: false
+        connectionTimeout: 10000
+        idleTimeout: 30000
+        maxLifetime: 1800000
+        minimumIdle: 3
+        maximumPoolSize: 10
+        read-only: true
+        data-source-properties:
+          keepSessionStateOnFailover: true

@@ -2,29 +2,128 @@ spring:
   application:
     name: standarddriver
   datasource:
-    writer:
-      url: jdbc:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
+    base:
       username: root
       password: password
-      driverClassName: com.mysql.cj.jdbc.Driver
+      endpoints:
+        cluster:
+          writer: localhost
+          reader: localhost
+        proxy:
+          writer: localhost
+          reader: localhost
       hikari:
-        autoCommit: false
+        exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException
+        auto-commit: false
         connectionTimeout: 10000
         idleTimeout: 30000
         maxLifetime: 1800000
         minimumIdle: 3
         maximumPoolSize: 10
-        read-only: false
-    reader:
-      url: jdbc:mysql://localhost:3306/spring_aurora_failover?socketTimeout=10000&connectTimeout=10000
-      username: root
-      password: password
-      driverClassName: com.mysql.cj.jdbc.Driver
-      hikari:
-        autoCommit: false
-        connectionTimeout: 10000
-        idleTimeout: 30000
-        maxLifetime: 1800000
-        minimumIdle: 3
-        maximumPoolSize: 10
-        read-only: true
+    raw:
+      direct:
+        writer:
+          url: jdbc:mysql://${spring.datasource.base.endpoints.cluster.writer}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: false
+        reader:
+          url: jdbc:mysql://${spring.datasource.base.endpoints.cluster.reader}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: true
+      proxy:
+        writer:
+          url: jdbc:mysql://${spring.datasource.base.endpoints.proxy.writer}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: false
+        reader:
+          url: jdbc:mysql://${spring.datasource.base.endpoints.proxy.reader}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: true
+    wrapper:
+      selfsplit:
+        writer:
+          url: jdbc:aws-wrapper:mysql://${spring.datasource.base.endpoints.cluster.writer}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          driver-class-name: software.amazon.jdbc.Driver
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: false
+            data-source-properties:
+              keepSessionStateOnFailover: true
+        reader:
+          url: jdbc:aws-wrapper:mysql://${spring.datasource.base.endpoints.cluster.reader}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+          username: '${spring.datasource.base.username}'
+          password: '${spring.datasource.base.password}'
+          driver-class-name: software.amazon.jdbc.Driver
+          hikari:
+            exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+            autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+            connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+            idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+            maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+            minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+            maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            read-only: true
+            data-source-properties:
+              keepSessionStateOnFailover: true
+      driversplit:
+        url: jdbc:aws-wrapper:mysql://${spring.datasource.base.endpoints.cluster.writer}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
+        username: '${spring.datasource.base.username}'
+        password: '${spring.datasource.base.password}'
+        driver-class-name: software.amazon.jdbc.Driver
+        hikari:
+          exception-override-class-name: '${spring.datasource.base.hikari.exception-override-class-name}'
+          autoCommit: '${spring.datasource.base.hikari.auto-commit}'
+          connectionTimeout: '${spring.datasource.base.hikari.connectionTimeout}'
+          idleTimeout: '${spring.datasource.base.hikari.idleTimeout}'
+          maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
+          minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
+          maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+          read-only: false
+          # data-source-class-name: software.amazon.jdbc.ds.AwsWrapperDataSource
+          data-source-properties:
+            wrapperPlugins: readWriteSplitting,failover,efm2
+            keepSessionStateOnFailover: true
