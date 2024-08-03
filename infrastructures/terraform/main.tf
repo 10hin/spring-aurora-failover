@@ -427,6 +427,7 @@ resource "aws_instance" "bastion" {
   EOT
   depends_on = [
     aws_s3_object.init_script,
+    aws_rds_cluster_instance.main,
   ]
 }
 
@@ -436,9 +437,9 @@ resource "aws_s3_bucket" "init_resourecs" {
 resource "aws_s3_bucket_public_access_block" "init_resourced" {
   bucket = aws_s3_bucket.init_resourecs.bucket
 
-  block_public_acls = true
-  block_public_policy = true
-  ignore_public_acls = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
@@ -447,18 +448,18 @@ locals {
 }
 resource "aws_s3_object" "init_script" {
   bucket = aws_s3_bucket.init_resourecs.bucket
-  key = "initdb.bash"
+  key    = "initdb.bash"
   content = templatefile("${local.script_file_path}.tftpl", {
-    aurora_endpoint = aws_rds_cluster.main.endpoint
+    aurora_endpoint   = aws_rds_cluster.main.endpoint
     aurora_secret_arn = aws_rds_cluster.main.master_user_secret[0].secret_arn
-    database_name = local.database_name
-    aurora_ddl = file("${path.root}/../../applications/sql/ddl.sql")
+    database_name     = local.database_name
+    aurora_ddl        = file("${path.root}/../../applications/sql/ddl.sql")
   })
   source_hash = md5(templatefile("${local.script_file_path}.tftpl", {
-    aurora_endpoint = aws_rds_cluster.main.endpoint
+    aurora_endpoint   = aws_rds_cluster.main.endpoint
     aurora_secret_arn = aws_rds_cluster.main.master_user_secret[0].secret_arn
-    database_name = local.database_name
-    aurora_ddl = file("${path.root}/../../applications/sql/ddl.sql")
+    database_name     = local.database_name
+    aurora_ddl        = file("${path.root}/../../applications/sql/ddl.sql")
   }))
 }
 data "aws_iam_policy_document" "allow_access_init_script" {
@@ -496,5 +497,5 @@ resource "aws_vpc_security_group_egress_rule" "free_outbound" {
   security_group_id = aws_security_group.bastion.id
 
   ip_protocol = -1
-  cidr_ipv4 = "0.0.0.0/0"
+  cidr_ipv4   = "0.0.0.0/0"
 }
