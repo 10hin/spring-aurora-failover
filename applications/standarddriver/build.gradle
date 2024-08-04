@@ -16,6 +16,8 @@ repositories {
 }
 
 dependencies {
+
+
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.retry:spring-retry'
@@ -27,6 +29,14 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.26.21"))
 	implementation 'software.amazon.awssdk:rds'
 	implementation 'software.amazon.jdbc:aws-advanced-jdbc-wrapper:2.3.7'
+
+	implementation(platform("io.opentelemetry:opentelemetry-bom:1.32.0"))
+	implementation("io.opentelemetry:opentelemetry-api")
+	implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+	implementation("io.opentelemetry:opentelemetry-sdk")
+	implementation("io.opentelemetry:opentelemetry-extension-aws")
+	implementation("io.opentelemetry:opentelemetry-sdk-extension-aws")
+	implementation("io.opentelemetry.contrib:opentelemetry-aws-xray:1.32.0")
 
 	testRuntimeOnly 'com.h2database:h2'
 	testImplementation 'com.h2database:h2'

@@ -34,6 +34,7 @@ spring:
             maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
             minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
             maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            connectionTestQuery: 'SELECT CASE WHEN @@SESSION.transaction_read_only = 0 THEN 1 ELSE 0 END AS `1`'
             read-only: false
         reader:
           url: jdbc:mysql://${spring.datasource.base.endpoints.cluster.reader}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
@@ -47,6 +48,7 @@ spring:
             maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
             minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
             maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            connectionTestQuery: 'SELECT CASE WHEN @@SESSION.transaction_read_only = 1 THEN 1 ELSE 0 END AS `1`'
             read-only: true
       proxy:
         writer:
@@ -61,6 +63,7 @@ spring:
             maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
             minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
             maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            connectionTestQuery: 'SELECT CASE WHEN @@SESSION.transaction_read_only = 0 THEN 1 ELSE 0 END AS `1`'
             read-only: false
         reader:
           url: jdbc:mysql://${spring.datasource.base.endpoints.proxy.reader}:3306/spring_aurora_failover?sslMode=REQUIRED&requireSSL=true&useSSL=true&socketTimeout=10000&connectTimeout=10000
@@ -74,6 +77,7 @@ spring:
             maxLifetime: '${spring.datasource.base.hikari.maxLifetime}'
             minimumIdle: '${spring.datasource.base.hikari.minimumIdle}'
             maximumPoolSize: '${spring.datasource.base.hikari.maximumPoolSize}'
+            connectionTestQuery: 'SELECT CASE WHEN @@SESSION.transaction_read_only = 1 THEN 1 ELSE 0 END AS `1`'
             read-only: true
     wrapper:
       selfsplit:
