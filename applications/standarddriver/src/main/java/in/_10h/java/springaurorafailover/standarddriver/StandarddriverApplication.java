@@ -14,11 +14,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.security.Security;
+
 @SpringBootApplication
 @Configuration
 public class StandarddriverApplication {
 
 	public static void main(String[] args) {
+		Security.setProperty("networkaddress.cache.ttl", "1");
+		Security.setProperty("networkaddress.cache.negative.ttl", "1");
 		SpringApplication.run(StandarddriverApplication.class, args);
 	}
 

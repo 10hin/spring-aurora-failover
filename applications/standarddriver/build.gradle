@@ -38,6 +38,10 @@ dependencies {
 	implementation("io.opentelemetry:opentelemetry-sdk-extension-aws")
 	implementation("io.opentelemetry.contrib:opentelemetry-aws-xray:1.32.0")
 
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//	implementation 'io.micrometer:micrometer-registry-prometheus:1.13.2'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	testRuntimeOnly 'com.h2database:h2'
 	testImplementation 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'

@@ -7,9 +7,9 @@ class TestUser(HttpUser):
     @task
     def test(self):
         h = {
-            # 'data-source': 'raw-direct',
+            'data-source': 'raw-direct',
             # 'data-source': 'raw-proxy',
-            'data-source': 'wrapper-selfsplit',
+            # 'data-source': 'wrapper-selfsplit',
             # 'data-source': 'wrapper-driversplit',
         }
         # self.client.get("/test", headers=h)

@@ -1,26 +1,10 @@
 package in._10h.java.springaurorafailover.standarddriver;
 
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.direct.RawDirectTestEntity;
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.direct.RawDirectTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.proxy.RawProxyTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.driversplit.WrapperDriversplitTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.selfsplit.WrapperSelfsplitTestRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.TransientDataAccessException;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.zaxxer.hikari.HikariDataSource;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @RestController
 public class MainController {
@@ -28,22 +12,8 @@ public class MainController {
     private final MainService mainService;
 
     public MainController(
-            @Qualifier("rawDirectWriterDataSource") final HikariDataSource rawDirectWriterDataSource,
-            @Qualifier("rawDirectReaderDataSource") final HikariDataSource rawDirectReaderDataSource,
-            @Qualifier("rawProxyWriterDataSource") final HikariDataSource rawProxyWriterDataSource,
-            @Qualifier("rawProxyReaderDataSource") final HikariDataSource rawProxyReaderDataSource,
-            @Qualifier("wrapperSelfsplitWriterDataSource") final HikariDataSource wrapperSelfsplitWriterDataSource,
-            @Qualifier("wrapperSelfsplitReaderDataSource") final HikariDataSource wrapperSelfsplitReaderDataSource,
-            @Qualifier("wrapperDriversplitDataSource") final HikariDataSource wrapperDriversplitDataSource,
             final MainService mainService
     ) {
-        LOGGER.info("rawDirectWriterDataSource.url: {}", rawDirectWriterDataSource.getJdbcUrl());
-        LOGGER.info("rawDirectReaderDataSource.url: {}", rawDirectReaderDataSource.getJdbcUrl());
-        LOGGER.info("rawProxyWriterDataSource.url: {}", rawProxyWriterDataSource.getJdbcUrl());
-        LOGGER.info("rawProxyReaderDataSource.url: {}", rawProxyReaderDataSource.getJdbcUrl());
-        LOGGER.info("wrapperSelfsplitWriterDataSource.url: {}", wrapperSelfsplitWriterDataSource.getJdbcUrl());
-        LOGGER.info("wrapperSelfsplitReaderDataSource.url: {}", wrapperSelfsplitReaderDataSource.getJdbcUrl());
-        LOGGER.info("wrapperDriversplitDataSource.url: {}", wrapperDriversplitDataSource.getJdbcUrl());
         this.mainService = mainService;
     }
 
