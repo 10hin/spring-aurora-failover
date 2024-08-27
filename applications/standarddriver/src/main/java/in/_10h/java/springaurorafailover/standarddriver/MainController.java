@@ -3,7 +3,9 @@ package in._10h.java.springaurorafailover.standarddriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,9 +30,22 @@ public class MainController {
     }
 
     @PostMapping(path = "/test", headers = {"data-source=raw-direct"})
-    public String testUpdateRawDirect() {
+    public String testCreateRawDirect() {
         try {
-            return this.mainService.testUpdateRawDirect().toString();
+            return this.mainService.testInsertRawDirect().toString();
+        } catch (Error | RuntimeException err) {
+            LOGGER.warn("failure: {}", err.getClass().getName());
+            throw err;
+        }
+    }
+
+    @PutMapping(path = "/test/{id}", headers = {"data-source=raw-direct"})
+    public String testUpdateRawDirect(
+            @PathVariable("id")
+            final Integer id
+    ) {
+        try {
+            return this.mainService.testUpdateRawDirect(id).toString();
         } catch (Error | RuntimeException err) {
             LOGGER.warn("failure: {}", err.getClass().getName());
             throw err;
@@ -48,9 +63,22 @@ public class MainController {
     }
 
     @PostMapping(path = "/test", headers = {"data-source=raw-proxy"})
-    public String testUpdateRawProxy() {
+    public String testCreateRawProxy() {
         try {
-            return this.mainService.testUpdateRawProxy().toString();
+            return this.mainService.testInsertRawProxy().toString();
+        } catch (Error | RuntimeException err) {
+            LOGGER.warn("failure: {}", err.getClass().getName());
+            throw err;
+        }
+    }
+
+    @PutMapping(path = "/test/{id}", headers = {"data-source=raw-proxy"})
+    public String testUpdateRawProxy(
+            @PathVariable("id")
+            final Integer id
+    ) {
+        try {
+            return this.mainService.testUpdateRawProxy(id).toString();
         } catch (Error | RuntimeException err) {
             LOGGER.warn("failure: {}", err.getClass().getName());
             throw err;
@@ -68,9 +96,22 @@ public class MainController {
     }
 
     @PostMapping(path = "/test", headers = {"data-source=wrapper-selfsplit"})
-    public String testUpdateWrapperSelfsplit() {
+    public String testCreateWrapperSelfsplit() {
         try {
-            return this.mainService.testUpdateWrapperSelfsplit().toString();
+            return this.mainService.testInsertWrapperSelfsplit().toString();
+        } catch (Error | RuntimeException err) {
+            LOGGER.warn("failure: {}", err.getClass().getName());
+            throw err;
+        }
+    }
+
+    @PutMapping(path = "/test/{id}", headers = {"data-source=wrapper-selfsplit"})
+    public String testUpdateWrapperSelfsplit(
+            @PathVariable("id")
+            final Integer id
+    ) {
+        try {
+            return this.mainService.testUpdateWrapperSelfsplit(id).toString();
         } catch (Error | RuntimeException err) {
             LOGGER.warn("failure: {}", err.getClass().getName());
             throw err;
@@ -88,9 +129,22 @@ public class MainController {
     }
 
     @PostMapping(path = "/test", headers = {"data-source=wrapper-driversplit"})
-    public String testUpdateWrapperDriversplit() {
+    public String testCreateWrapperDriversplit() {
         try {
-            return this.mainService.testUpdateWrapperDriversplit().toString();
+            return this.mainService.testInsertWrapperDriversplit().toString();
+        } catch (Error | RuntimeException err) {
+            LOGGER.warn("failure: {}", err.getClass().getName());
+            throw err;
+        }
+    }
+
+    @PutMapping(path = "/test/{id}", headers = {"data-source=wrapper-driversplit"})
+    public String testUpdateWrapperDriversplit(
+            @PathVariable("id")
+            final Integer id
+    ) {
+        try {
+            return this.mainService.testUpdateWrapperDriversplit(id).toString();
         } catch (Error | RuntimeException err) {
             LOGGER.warn("failure: {}", err.getClass().getName());
             throw err;

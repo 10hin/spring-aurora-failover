@@ -34,7 +34,10 @@ public class DataSourceConfiguration {
 
     @Bean("rawDirectWriterDataSource")
     @ConfigurationProperties("spring.datasource.raw.direct.writer.hikari")
-    public HikariDataSource rawDirectWriterDataSource(@Qualifier("rawDirectWriterDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource rawDirectWriterDataSource(
+            @Qualifier("rawDirectWriterDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -42,7 +45,10 @@ public class DataSourceConfiguration {
 
     @Bean("rawDirectReaderDataSource")
     @ConfigurationProperties("spring.datasource.raw.direct.reader.hikari")
-    public HikariDataSource rawDirectReaderDataSource(@Qualifier("rawDirectReaderDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource rawDirectReaderDataSource(
+            @Qualifier("rawDirectReaderDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -51,8 +57,10 @@ public class DataSourceConfiguration {
     @Bean("rawDirectDataSource")
     @Primary
     public DataSource rawDirectDataSource(
-        @Qualifier("rawDirectWriterDataSource") HikariDataSource rawDirectWriterDataSource,
-        @Qualifier("rawDirectReaderDataSource") HikariDataSource rawDirectReaderDataSource
+            @Qualifier("rawDirectWriterDataSource")
+            final HikariDataSource rawDirectWriterDataSource,
+            @Qualifier("rawDirectReaderDataSource")
+            final HikariDataSource rawDirectReaderDataSource
     ) {
         final var dataSource = new LazyConnectionDataSourceProxy(rawDirectWriterDataSource);
         dataSource.setReadOnlyDataSource(rawDirectReaderDataSource);
@@ -62,7 +70,8 @@ public class DataSourceConfiguration {
     @Bean("rawDirectJdbcClient")
     @Primary
     public JdbcClient rawDirectJdbcClient(
-            @Qualifier("rawDirectDataSource") DataSource ds
+            @Qualifier("rawDirectDataSource")
+            final DataSource ds
     ) {
         return JdbcClient.create(ds);
     }
@@ -70,7 +79,8 @@ public class DataSourceConfiguration {
     @Bean("rawDirectSqlSessionFactory")
     @Primary
     public SqlSessionFactory rawDirectSqlSessionFactory(
-            @Qualifier("rawDirectDataSource") DataSource ds
+            @Qualifier("rawDirectDataSource")
+            final DataSource ds
     ) throws Exception {
         final SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(ds);
@@ -88,7 +98,8 @@ public class DataSourceConfiguration {
     @Bean("rawDirectTransactionManager")
     @Primary
     public DataSourceTransactionManager rawDirectTransactionManager(
-            @Qualifier("rawDirectDataSource") DataSource ds
+            @Qualifier("rawDirectDataSource")
+            final DataSource ds
     ) {
         return new DataSourceTransactionManager(ds);
     }
@@ -107,7 +118,10 @@ public class DataSourceConfiguration {
 
     @Bean("rawProxyWriterDataSource")
     @ConfigurationProperties("spring.datasource.raw.proxy.writer.hikari")
-    public HikariDataSource rawProxyWriterDataSource(@Qualifier("rawProxyWriterDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource rawProxyWriterDataSource(
+            @Qualifier("rawProxyWriterDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -115,7 +129,10 @@ public class DataSourceConfiguration {
 
     @Bean("rawProxyReaderDataSource")
     @ConfigurationProperties("spring.datasource.raw.proxy.reader.hikari")
-    public HikariDataSource rawProxyReaderDataSource(@Qualifier("rawProxyReaderDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource rawProxyReaderDataSource(
+            @Qualifier("rawProxyReaderDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -123,8 +140,10 @@ public class DataSourceConfiguration {
 
     @Bean("rawProxyDataSource")
     public DataSource rawProxyDataSource(
-            @Qualifier("rawProxyWriterDataSource") HikariDataSource rawProxyWriterDataSource,
-            @Qualifier("rawProxyReaderDataSource") HikariDataSource rawProxyReaderDataSource
+            @Qualifier("rawProxyWriterDataSource")
+            final HikariDataSource rawProxyWriterDataSource,
+            @Qualifier("rawProxyReaderDataSource")
+            final HikariDataSource rawProxyReaderDataSource
     ) {
         final var dataSource = new LazyConnectionDataSourceProxy(rawProxyWriterDataSource);
         dataSource.setReadOnlyDataSource(rawProxyReaderDataSource);
@@ -133,14 +152,16 @@ public class DataSourceConfiguration {
 
     @Bean("rawProxyJdbcClient")
     public JdbcClient rawProxyJdbcClient(
-            @Qualifier("rawProxyDataSource") DataSource ds
+            @Qualifier("rawProxyDataSource")
+            final DataSource ds
     ) {
         return JdbcClient.create(ds);
     }
 
     @Bean("rawProxySqlSessionFactory")
     public SqlSessionFactory rawProxySqlSessionFactory(
-            @Qualifier("rawProxyDataSource") DataSource ds
+            @Qualifier("rawProxyDataSource")
+            final DataSource ds
     ) throws Exception {
         final SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(ds);
@@ -157,7 +178,8 @@ public class DataSourceConfiguration {
 
     @Bean("rawProxyTransactionManager")
     public DataSourceTransactionManager rawProxyTransactionManager(
-            @Qualifier("rawProxyDataSource") DataSource ds
+            @Qualifier("rawProxyDataSource")
+            final DataSource ds
     ) {
         return new DataSourceTransactionManager(ds);
     }

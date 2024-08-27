@@ -1,21 +1,21 @@
 package in._10h.java.springaurorafailover.standarddriver;
 
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.direct.RawDirectTestEntity;
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.direct.RawDirectTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.raw.proxy.RawProxyTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.driversplit.WrapperDriversplitTestRepository;
-import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.selfsplit.WrapperSelfsplitTestRepository;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.TransientDataAccessException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
+import in._10h.java.springaurorafailover.standarddriver.repositories.raw.direct.RawDirectTestRepository;
+import in._10h.java.springaurorafailover.standarddriver.repositories.raw.proxy.RawProxyTestRepository;
+import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.driversplit.WrapperDriversplitTestRepository;
+import in._10h.java.springaurorafailover.standarddriver.repositories.wrapper.selfsplit.WrapperSelfsplitTestRepository;
 
 @Service
 public class MainService {
@@ -61,9 +61,15 @@ public class MainService {
             return "testCount: " + testCount + ", sessionReadOnlyFlag(0:ReadWrite/1:ReadOnly): " + this.sessionReadOnlyFlag + ", readerInstanceFlag(0:writer/1:reader): " + this.readerInstanceFlag + ", inserted id: " + this.insertedId;
         }
     }
+    public record PutResult(Integer testCount, Integer sessionReadOnlyFlag, Integer readerInstanceFlag, Integer updatedId, Integer intValBefore, Integer intValAfter) {
+        @Override
+        public String toString() {
+            return "testCount: " + testCount + ", sessionReadOnlyFlag(0:ReadWrite/1:ReadOnly): " + this.sessionReadOnlyFlag + ", readerInstanceFlag(0:writer/1:reader): " + this.readerInstanceFlag + ", updated id: " + this.updatedId + ", intValue:(before: " + this.intValBefore + ", after: " + this.intValAfter + ")";
+        }
+    }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
+    @Retryable
     public GetResult testRawDirect() {
         final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -77,23 +83,42 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
-    public PostResult testUpdateRawDirect() {
+    @Retryable
+    public PostResult testInsertRawDirect() {
         final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
                 .single();
         final Integer readerInstanceFlag = this.rawDirectJdbcClient.sql("SELECT @@innodb_read_only;")
                 .query(Integer.class)
                 .single();
-            final var newEntity = new RawDirectTestEntity();
-        this.rawDirectTestRepository.save(newEntity);
+        final var newEntity = new Test();
+        newEntity.setTextVal("data-source=raw-direct");
+        this.rawDirectTestRepository.create(newEntity);
         final var allTest = Objects.requireNonNull(this.rawDirectTestRepository.findAll());
         LOGGER.info("testCount = {}, sessionReadOnlyFlag = {}, inserted id = {}", allTest.size(), sessionReadOnlyFlag, newEntity.getId());
         return new PostResult(allTest.size(), sessionReadOnlyFlag, readerInstanceFlag, newEntity.getId());
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
+    @Retryable
+    public Optional<PutResult> testUpdateRawDirect(final Integer id) {
+        final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
+                .query(Integer.class)
+                .single();
+        final Integer readerInstanceFlag = this.rawDirectJdbcClient.sql("SELECT @@innodb_read_only;")
+                .query(Integer.class)
+                .single();
+        final var entity = this.rawDirectTestRepository.findOne(id);
+        return entity.map(ent -> {
+            final var intValBefore = ent.getIntVal();
+            ent.setIntVal(ent.getIntVal() + 1);
+            this.rawDirectTestRepository.update(ent);
+            return new PutResult(readerInstanceFlag, sessionReadOnlyFlag, readerInstanceFlag, id, intValBefore, ent.getIntVal());
+        });
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
+    @Retryable
     public GetResult testRawProxy() {
         final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -107,23 +132,42 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
-    public PostResult testUpdateRawProxy() {
+    @Retryable
+    public PostResult testInsertRawProxy() {
         final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
                 .single();
         final Integer readerInstanceFlag = this.rawProxyJdbcClient.sql("SELECT @@innodb_read_only;")
                 .query(Integer.class)
                 .single();
-        final var newEntity = new RawDirectTestEntity();
-        this.rawDirectTestRepository.save(newEntity);
+        final var newEntity = new Test();
+        newEntity.setTextVal("data-source=raw-proxy");
+        this.rawProxyTestRepository.create(newEntity);
         final var allTest = Objects.requireNonNull(this.rawProxyTestRepository.findAll());
         LOGGER.info("testCount = {}, sessionReadOnlyFlag = {}, inserted id = {}", allTest.size(), sessionReadOnlyFlag, newEntity.getId());
         return new PostResult(allTest.size(), sessionReadOnlyFlag, readerInstanceFlag, newEntity.getId());
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
+    @Retryable
+    public Optional<PutResult> testUpdateRawProxy(final Integer id) {
+        final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
+                .query(Integer.class)
+                .single();
+        final Integer readerInstanceFlag = this.rawProxyJdbcClient.sql("SELECT @@innodb_read_only;")
+                .query(Integer.class)
+                .single();
+        final var entity = this.rawProxyTestRepository.findOne(id);
+        return entity.map(ent -> {
+            final var intValBefore = ent.getIntVal();
+            ent.setIntVal(ent.getIntVal() + 1);
+            this.rawProxyTestRepository.update(ent);
+            return new PutResult(readerInstanceFlag, sessionReadOnlyFlag, readerInstanceFlag, id, intValBefore, ent.getIntVal());
+        });
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
+    @Retryable
     public GetResult testWrapperSelfsplit() {
         final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -137,23 +181,42 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
-    public PostResult testUpdateWrapperSelfsplit() {
+    @Retryable
+    public PostResult testInsertWrapperSelfsplit() {
         final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
                 .single();
         final Integer readerInstanceFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@innodb_read_only;")
                 .query(Integer.class)
                 .single();
-        final var newEntity = new RawDirectTestEntity();
-        this.rawDirectTestRepository.save(newEntity);
+        final var newEntity = new Test();
+        newEntity.setTextVal("data-source=wrapper-selfsplit");
+        this.wrapperSelfsplitTestRepository.create(newEntity);
         final var allTest = Objects.requireNonNull(this.wrapperSelfsplitTestRepository.findAll());
         LOGGER.info("testCount = {}, sessionReadOnlyFlag = {}, inserted id = {}", allTest.size(), sessionReadOnlyFlag, newEntity.getId());
         return new PostResult(allTest.size(), sessionReadOnlyFlag, readerInstanceFlag, newEntity.getId());
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
+    @Retryable
+    public Optional<PutResult> testUpdateWrapperSelfsplit(final Integer id) {
+        final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
+                .query(Integer.class)
+                .single();
+        final Integer readerInstanceFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@innodb_read_only;")
+                .query(Integer.class)
+                .single();
+        final var entity = this.wrapperSelfsplitTestRepository.findOne(id);
+        return entity.map(ent -> {
+            final var intValBefore = ent.getIntVal();
+            ent.setIntVal(ent.getIntVal() + 1);
+            this.wrapperSelfsplitTestRepository.update(ent);
+            return new PutResult(readerInstanceFlag, sessionReadOnlyFlag, readerInstanceFlag, id, intValBefore, ent.getIntVal());
+        });
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
+    @Retryable
     public GetResult testWrapperDriversplit() {
         final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -167,18 +230,37 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
-    @Retryable(retryFor = {TransientDataAccessException.class})
-    public PostResult testUpdateWrapperDriversplit() {
+    @Retryable
+    public PostResult testInsertWrapperDriversplit() {
         final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
                 .single();
         final Integer readerInstanceFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@innodb_read_only;")
                 .query(Integer.class)
                 .single();
-        final var newEntity = new RawDirectTestEntity();
-        this.rawDirectTestRepository.save(newEntity);
+        final var newEntity = new Test();
+        newEntity.setTextVal("data-source=wrapper-driversplit");
+        this.wrapperDriversplitTestRepository.create(newEntity);
         final var allTest = Objects.requireNonNull(this.wrapperDriversplitTestRepository.findAll());
         LOGGER.info("testCount = {}, sessionReadOnlyFlag = {}, inserted id = {}", allTest.size(), sessionReadOnlyFlag, newEntity.getId());
         return new PostResult(allTest.size(), sessionReadOnlyFlag, readerInstanceFlag, newEntity.getId());
+    }
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
+    @Retryable
+    public Optional<PutResult> testUpdateWrapperDriversplit(final Integer id) {
+        final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
+                .query(Integer.class)
+                .single();
+        final Integer readerInstanceFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@innodb_read_only;")
+                .query(Integer.class)
+                .single();
+        final var entity = this.wrapperDriversplitTestRepository.findOne(id);
+        return entity.map(ent -> {
+            final var intValBefore = ent.getIntVal();
+            ent.setIntVal(ent.getIntVal() + 1);
+            this.wrapperDriversplitTestRepository.update(ent);
+            return new PutResult(readerInstanceFlag, sessionReadOnlyFlag, readerInstanceFlag, id, intValBefore, ent.getIntVal());
+        });
     }
 }

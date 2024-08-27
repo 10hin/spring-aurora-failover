@@ -18,7 +18,6 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.retry.annotation.EnableRetry;
 
 import software.amazon.jdbc.PropertyDefinition;
-import software.amazon.jdbc.ds.AwsWrapperDataSource;
 
 import javax.sql.DataSource;
 
@@ -42,7 +41,10 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperSelfsplitWriterDataSource")
     @ConfigurationProperties("spring.datasource.wrapper.selfsplit.writer.hikari")
-    public HikariDataSource wrapperSelfsplitWriterDataSource(@Qualifier("wrapperSelfsplitWriterDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource wrapperSelfsplitWriterDataSource(
+            @Qualifier("wrapperSelfsplitWriterDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -50,7 +52,10 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperSelfsplitReaderDataSource")
     @ConfigurationProperties("spring.datasource.wrapper.selfsplit.reader.hikari")
-    public HikariDataSource wrapperSelfsplitReaderDataSource(@Qualifier("wrapperSelfsplitReaderDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource wrapperSelfsplitReaderDataSource(
+            @Qualifier("wrapperSelfsplitReaderDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         return props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -58,8 +63,10 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperSelfsplitDataSource")
     public DataSource wrapperSelfsplitDataSource(
-            @Qualifier("wrapperSelfsplitWriterDataSource") HikariDataSource wrapperSelfsplitWriterDataSource,
-            @Qualifier("wrapperSelfsplitReaderDataSource") HikariDataSource wrapperSelfsplitReaderDataSource
+            @Qualifier("wrapperSelfsplitWriterDataSource")
+            final HikariDataSource wrapperSelfsplitWriterDataSource,
+            @Qualifier("wrapperSelfsplitReaderDataSource")
+            final HikariDataSource wrapperSelfsplitReaderDataSource
     ) {
         final var dataSource = new LazyConnectionDataSourceProxy(wrapperSelfsplitWriterDataSource);
         dataSource.setReadOnlyDataSource(wrapperSelfsplitReaderDataSource);
@@ -68,14 +75,16 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperSelfsplitJdbcClient")
     public JdbcClient wrapperSelfsplitJdbcClient(
-            @Qualifier("wrapperSelfsplitDataSource") DataSource ds
+            @Qualifier("wrapperSelfsplitDataSource")
+            final DataSource ds
     ) {
         return JdbcClient.create(ds);
     }
 
     @Bean("wrapperSelfsplitSqlSessionFactory")
     public SqlSessionFactory wrapperSelfsplitSqlSessionFactory(
-            @Qualifier("wrapperSelfsplitDataSource") DataSource ds
+            @Qualifier("wrapperSelfsplitDataSource")
+            final DataSource ds
     ) throws Exception {
         final SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(ds);
@@ -92,7 +101,8 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperSelfsplitTransactionManager")
     public DataSourceTransactionManager wrapperSelfsplitTransactionManager(
-            @Qualifier("wrapperSelfsplitDataSource") DataSource ds
+            @Qualifier("wrapperSelfsplitDataSource")
+            final DataSource ds
     ) {
         return new DataSourceTransactionManager(ds);
     }
@@ -108,7 +118,10 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperDriversplitDataSource")
     @ConfigurationProperties("spring.datasource.wrapper.driversplit.hikari")
-    public HikariDataSource wrapperDriversplitDataSource(@Qualifier("wrapperDriversplitDataSourceProperties") DataSourceProperties props) {
+    public HikariDataSource wrapperDriversplitDataSource(
+            @Qualifier("wrapperDriversplitDataSourceProperties")
+            final DataSourceProperties props
+    ) {
         final var ds = props.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
@@ -129,14 +142,16 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperDriversplitJdbcClient")
     public JdbcClient wrapperDriversplitJdbcClient(
-            @Qualifier("wrapperDriversplitDataSource") DataSource ds
+            @Qualifier("wrapperDriversplitDataSource")
+            final DataSource ds
     ) {
         return JdbcClient.create(ds);
     }
 
     @Bean("wrapperDriversplitSqlSessionFactory")
     public SqlSessionFactory wrapperDriversplitSqlSessionFactory(
-            @Qualifier("wrapperDriversplitDataSource") DataSource ds
+            @Qualifier("wrapperDriversplitDataSource")
+            final DataSource ds
     ) throws Exception {
         final SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
         factory.setDataSource(ds);
@@ -153,7 +168,8 @@ public class WrapperDataSourceConfiguration {
 
     @Bean("wrapperDriversplitTransactionManager")
     public DataSourceTransactionManager wrapperDriversplitTransactionManager(
-            @Qualifier("wrapperDriversplitDataSource") DataSource ds
+            @Qualifier("wrapperDriversplitDataSource")
+            final DataSource ds
     ) {
         return new DataSourceTransactionManager(ds);
     }

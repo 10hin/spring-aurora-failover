@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-raw-proxy-reader-master
+  namespace: locust
+spec:
+  ports:
+  - name: locust
+    port: 5557
+    protocol: TCP
+    targetPort: locust
+  selector:
+    batch.kubernetes.io/job-name: locust-raw-proxy-reader
+    batch.kubernetes.io/job-completion-index: '0'
+  type: ClusterIP

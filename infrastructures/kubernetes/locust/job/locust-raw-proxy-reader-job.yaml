@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: locust-raw-proxy-reader
+  namespace: locust
+spec:
+  completions: 3
+  completionMode: Indexed
+  parallelism: 3
+  template:
+    spec:
+      containers:
+      - name: locust
+        image: locustio/locust:2.29.1
+        env:
+        - name: JOB_CONTROLLER_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['batch.kubernetes.io/controller-uid']
+        - name: DATA_SOURCE_HEADER_VALUE
+          value: raw-proxy
+        - name: TARGET_DB_ROLE
+          value: READER
+        command:
+        - sh
+        - -c
+        - |
+          if [ "${JOB_COMPLETION_INDEX}" = '0' ]
+          then
+            locust \
+              --locustfile /locustfiles/locustfile.py \
+              --master \
+              --headless \
+              --expect-workers 2 \
+              --host http://standarddriver.default.svc.cluster.local:8080 \
+              --users 100 \
+              --spawn-rate 10 \
+              --run-time 1h \
+              --stop-timeout 5m \
+              --reset-stats \
+              --csv "/locustreports/report_${DATA_SOURCE_HEADER_VALUE}_${TARGET_DB_ROLE}_${JOB_CONTROLLER_UID}" \
+              --csv-full-history \
+              --html "/locustreports/report_${DATA_SOURCE_HEADER_VALUE}_${TARGET_DB_ROLE}_${JOB_CONTROLLER_UID}.html" \
+              --exit-code-on-error 0 \
+              ;
+          else
+            locust \
+              -f - \
+              --worker \
+              --master-host locust-raw-proxy-reader-master.locust.svc.cluster.local \
+              --headless \
+              --reset-stats \
+              ;
+          fi
+        ports:
+        - name: locust
+          containerPort: 5557
+        volumeMounts:
+        - name: locustfile
+          mountPath: /locustfiles/locustfile.py
+          subPath: locustfile.py
+        - name: locustreport
+          mountPath: /locustreports
+      serviceAccountName: report-uploader
+      restartPolicy: Never
+      volumes:
+      - name: locustfile
+        configMap:
+          name: locustfile
+      - name: locustreport
+        emptyDir: {}
+  backoffLimit: 0
+

@@ -499,3 +499,137 @@ resource "aws_vpc_security_group_egress_rule" "free_outbound" {
   ip_protocol = -1
   cidr_ipv4   = "0.0.0.0/0"
 }
+
+# resource "aws_s3_bucket" "locust_reports" {
+#   bucket = "${local.project_name}-locust-reports-${local.aws_account_id}"
+# }
+# resource "aws_s3_bucket_public_access_block" "locust_reports" {
+#   bucket = aws_s3_bucket.init_resourecs.bucket
+
+#   block_public_acls       = true
+#   block_public_policy     = true
+#   ignore_public_acls      = true
+#   restrict_public_buckets = true
+# }
+data "aws_s3_bucket" "locust_reports" {
+  bucket = "${local.project_name}-locust-reports-${local.aws_account_id}"
+}
+
+data "aws_iam_role" "locust_report_uploader" {
+  name = "aurora-spring-failover-report-uploader"
+}
+resource "aws_iam_role_policy" "allow_report_upload" {
+  role   = data.aws_iam_role.locust_report_uploader.name
+  name   = "allow-report-upload"
+  policy = data.aws_iam_policy_document.allow_report_upload.json
+}
+data "aws_iam_policy_document" "allow_report_upload" {
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = [
+      "${data.aws_s3_bucket.locust_reports.arn}/*",
+    ]
+  }
+}
+
+resource "aws_cloudwatch_event_rule" "trigger_failover" {
+  name                = "${local.project_name}-trigger-failover"
+  schedule_expression = "rate(10 minutes)"
+  event_bus_name      = "default"
+  #role_arn = null
+  state = "DISABLED" # 使うときにコンソールからenabledにする
+}
+
+resource "aws_cloudwatch_event_target" "trigger_failover" {
+  target_id = "${local.project_name}-trigger-failover-state"
+  arn       = aws_sfn_state_machine.trigger_failover.arn
+  rule      = aws_cloudwatch_event_rule.trigger_failover.name
+  input     = <<-EOF
+  {
+    "dbClusterIdentifier": "spring-aurora-failover"
+  }
+  EOF
+  role_arn  = aws_iam_role.call_failover_state.arn
+}
+
+resource "aws_iam_role" "call_failover_state" {
+  name               = "${local.project_name}-call-failover-state"
+  assume_role_policy = data.aws_iam_policy_document.allow_assume_by_events.json
+}
+
+data "aws_iam_policy_document" "allow_assume_by_events" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "call_failover_state" {
+  name   = "call-failover-state"
+  role   = aws_iam_role.call_failover_state.name
+  policy = data.aws_iam_policy_document.call_failover_state.json
+}
+
+data "aws_iam_policy_document" "call_failover_state" {
+  statement {
+    actions = ["states:StartExecution"]
+    resources = [
+      aws_sfn_state_machine.trigger_failover.arn,
+    ]
+  }
+}
+
+resource "aws_sfn_state_machine" "trigger_failover" {
+  name       = "${local.project_name}-trigger-failover"
+  role_arn   = aws_iam_role.trigger_failover.arn
+  definition = <<-EOF
+  {
+    "StartAt": "FailoverDBCluster",
+    "States": {
+      "FailoverDBCluster": {
+        "Type": "Task",
+        "Parameters": {
+          "DbClusterIdentifier.$": "$.dbClusterIdentifier"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:rds:failoverDBCluster",
+        "End": true
+      }
+    }
+  }
+  EOF
+}
+
+resource "aws_iam_role" "trigger_failover" {
+  name               = "${local.project_name}-trigger-failover"
+  assume_role_policy = data.aws_iam_policy_document.allow_assume_by_sfn.json
+}
+
+data "aws_iam_policy_document" "allow_assume_by_sfn" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["states.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "allow_rds_failover" {
+  role   = aws_iam_role.trigger_failover.name
+  name   = "allow-rds-failover"
+  policy = data.aws_iam_policy_document.allow_rds_failover.json
+}
+
+data "aws_iam_policy_document" "allow_rds_failover" {
+  statement {
+    actions = [
+      "rds:FailoverDBCluster",
+    ]
+    resources = ["*"]
+  }
+}

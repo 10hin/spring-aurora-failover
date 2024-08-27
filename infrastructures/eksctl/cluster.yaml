@@ -23,6 +23,13 @@ iam:
       roleName: aurora-spring-failover-eso
       tags:
         Purpose: AuroraFailover
+    - metadata:
+        name: report-uploader
+        namespace: locust
+      attachPolicy: {}
+      roleName: aurora-spring-failover-report-uploader
+      tags:
+        Purpose: AuroraFailover
 
 fargateProfiles:
   - name: fp-default

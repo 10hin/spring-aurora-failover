@@ -20,7 +20,7 @@ spec:
           image: locustio/locust:2.29.1
           command:
             - locust
-            - -f
+            - --locustfile
             - '-'
             - --worker
             - --master-host

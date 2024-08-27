@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - locust-raw-direct-reader-job.yaml
+  - locust-raw-direct-writer-job.yaml
+  - locust-raw-proxy-reader-job.yaml
+  - locust-raw-proxy-writer-job.yaml
+  - locust-wrapper-selfsplit-reader-job.yaml
+  - locust-wrapper-selfsplit-writer-job.yaml
+  - locust-wrapper-driversplit-reader-job.yaml
+  - locust-wrapper-driversplit-writer-job.yaml
+  - locust-raw-direct-reader-master-service.yaml
+  - locust-raw-direct-writer-master-service.yaml
+  - locust-raw-proxy-reader-master-service.yaml
+  - locust-raw-proxy-writer-master-service.yaml
+  - locust-wrapper-selfsplit-reader-master-service.yaml
+  - locust-wrapper-selfsplit-writer-master-service.yaml
+  - locust-wrapper-driversplit-reader-master-service.yaml
+  - locust-wrapper-driversplit-writer-master-service.yaml
+
+configMapGenerator:
+  - name: locustfile
+    namespace: locust
+    files:
+      - locustfile.py
