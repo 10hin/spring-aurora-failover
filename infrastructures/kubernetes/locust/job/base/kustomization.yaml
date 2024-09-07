@@ -24,3 +24,7 @@ configMapGenerator:
     namespace: locust
     files:
       - locustfile.py
+  - name: entrypoint
+    namespace: locust
+    files:
+      - entrypoint.bash

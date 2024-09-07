@@ -26,44 +26,16 @@ spec:
         - name: LOCUST_HOST
           value: 'http://standarddriver.default.svc.cluster.local:8080'
         - name: LOCUST_USERS
-          value: '100'
+          value: '1000'
         - name: LOCUST_SPAWN_RATE
-          value: '100'
+          value: '10'
         - name: LOCUST_RUN_TIME
           value: '1h'
         - name: LOCUST_STOP_TIMEOUT
           value: '5m'
         command:
-        - sh
-        - -c
-        - |
-          if [ "${JOB_COMPLETION_INDEX}" = '0' ]
-          then
-            locust \
-              --locustfile /locustfiles/locustfile.py \
-              --master \
-              --headless \
-              --expect-workers "${LOCUST_EXPECT_WORKERS}" \
-              --host "${LOCUST_HOST}" \
-              --users "${LOCUST_USERS}" \
-              --spawn-rate "${LOCUST_SPAWN_RATE}" \
-              --run-time "${LOCUST_RUN_TIME}" \
-              --stop-timeout "${LOCUST_STOP_TIMEOUT}" \
-              --reset-stats \
-              --csv "/locustreports/report_${DATA_SOURCE_HEADER_VALUE}_${TARGET_DB_ROLE}_${JOB_CONTROLLER_UID}" \
-              --csv-full-history \
-              --html "/locustreports/report_${DATA_SOURCE_HEADER_VALUE}_${TARGET_DB_ROLE}_${JOB_CONTROLLER_UID}.html" \
-              --exit-code-on-error 0 \
-              ;
-          else
-            locust \
-              -f - \
-              --worker \
-              --master-host locust-raw-direct-writer-master.locust.svc.cluster.local \
-              --headless \
-              --reset-stats \
-              ;
-          fi
+        - bash
+        - /home/locust/entrypoint.bash
         ports:
         - name: locust
           containerPort: 5557
@@ -71,6 +43,9 @@ spec:
         - name: locustfile
           mountPath: /locustfiles/locustfile.py
           subPath: locustfile.py
+        - name: entrypoint
+          mountPath: /home/locust/entrypoint.bash
+          subPath: entrypoint.bash
         - name: locustreport
           mountPath: /locustreports
       serviceAccountName: report-uploader
@@ -79,6 +54,9 @@ spec:
       - name: locustfile
         configMap:
           name: locustfile
+      - name: entrypoint
+        configMap:
+          name: entrypoint
       - name: locustreport
         emptyDir: {}
   backoffLimit: 0

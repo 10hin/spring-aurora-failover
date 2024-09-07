@@ -1,18 +1,13 @@
-import importlib
-import pip
 import re
-import site
-
-pip.main(['install', 'boto3'])
-importlib.reload(site)
-
-import boto3
-
 from datetime import datetime
 import logging
 import os
+
 from locust import HttpUser, task, between, events
 from locust.runners import WorkerRunner
+
+import boto3
+
 
 LOCUST_REPORTS_BUCKET_PREFIX = 'spring-aurora-failover-locust-reports'
 JOB_CONTROLLER_UID = os.getenv('JOB_CONTROLLER_UID')
@@ -35,9 +30,12 @@ aws_account_id = caller_identity['Account']
 report_bucket = f'{LOCUST_REPORTS_BUCKET_PREFIX}-{aws_account_id}'
 s3_report_dir = datetime.now().isoformat().replace(':', '_')
 
+is_worker = False
+
 @events.init.add_listener
 def s3_access_check(environment, **kwargs):
     if isinstance(environment.runner, WorkerRunner):
+        is_worker = True
         logging.info('This instance is worker; skip access test for report bucket')
         return
     logging.info('Access test for report bucket')
@@ -48,9 +46,9 @@ def s3_access_check(environment, **kwargs):
     )
     logging.info('Successfully complete access test for report bucket')
 
-@events.quitting.add_listener
-def send_reports_to_s3(environment, **kwargs):
-    if isinstance(environment.runner, WorkerRunner):
+@events.quit.add_listener
+def send_reports_to_s3(exit_code, **kwargs):
+    if is_worker:
         logging.info('This instance is worker; skip reporting to report bucket')
         return
     logging.info('Start reporting to report bucket')
