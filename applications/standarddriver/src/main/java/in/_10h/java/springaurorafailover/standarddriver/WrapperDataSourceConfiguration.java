@@ -15,14 +15,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-import org.springframework.retry.annotation.EnableRetry;
+// import org.springframework.retry.annotation.EnableRetry;
 
 import software.amazon.jdbc.PropertyDefinition;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableRetry
+// @EnableRetry
 public class WrapperDataSourceConfiguration {
 
     // selfsplit

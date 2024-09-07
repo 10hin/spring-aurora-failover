@@ -20,7 +20,7 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.retry:spring-retry'
+	// implementation 'org.springframework.retry:spring-retry'
 	implementation 'org.springframework:spring-aspects'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

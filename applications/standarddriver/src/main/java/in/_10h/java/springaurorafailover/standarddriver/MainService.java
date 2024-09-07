@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.retry.annotation.Retryable;
+// import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +69,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
-    @Retryable
+    // @Retryable
     public GetResult testRawDirect() {
         final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -83,7 +83,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
-    @Retryable
+    // @Retryable
     public PostResult testInsertRawDirect() {
         final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -100,7 +100,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawDirectTransactionManager")
-    @Retryable
+    // @Retryable
     public Optional<PutResult> testUpdateRawDirect(final Integer id) {
         final Integer sessionReadOnlyFlag = this.rawDirectJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -118,7 +118,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
-    @Retryable
+    // @Retryable
     public GetResult testRawProxy() {
         final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -132,7 +132,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
-    @Retryable
+    // @Retryable
     public PostResult testInsertRawProxy() {
         final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -149,7 +149,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "rawProxyTransactionManager")
-    @Retryable
+    // @Retryable
     public Optional<PutResult> testUpdateRawProxy(final Integer id) {
         final Integer sessionReadOnlyFlag = this.rawProxyJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -167,7 +167,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
-    @Retryable
+    // @Retryable
     public GetResult testWrapperSelfsplit() {
         final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -181,7 +181,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
-    @Retryable
+    // @Retryable
     public PostResult testInsertWrapperSelfsplit() {
         final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -198,7 +198,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperSelfsplitTransactionManager")
-    @Retryable
+    // @Retryable
     public Optional<PutResult> testUpdateWrapperSelfsplit(final Integer id) {
         final Integer sessionReadOnlyFlag = this.wrapperSelfsplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -216,7 +216,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
-    @Retryable
+    // @Retryable
     public GetResult testWrapperDriversplit() {
         final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -230,7 +230,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
-    @Retryable
+    // @Retryable
     public PostResult testInsertWrapperDriversplit() {
         final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
@@ -247,7 +247,7 @@ public class MainService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, transactionManager = "wrapperDriversplitTransactionManager")
-    @Retryable
+    // @Retryable
     public Optional<PutResult> testUpdateWrapperDriversplit(final Integer id) {
         final Integer sessionReadOnlyFlag = this.wrapperDriversplitJdbcClient.sql("SELECT @@SESSION.transaction_read_only;")
                 .query(Integer.class)
