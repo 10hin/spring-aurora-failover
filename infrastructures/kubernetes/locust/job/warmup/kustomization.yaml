@@ -1,0 +1,167 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../base/
+
+patches:
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-raw-direct-reader
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-raw-direct-writer
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-raw-proxy-reader
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-raw-proxy-writer
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-wrapper-driversplit-reader
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-wrapper-driversplit-writer
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-wrapper-selfsplit-reader
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'
+- patch: |-
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: locust-wrapper-selfsplit-writer
+      namespace: locust
+    spec:
+      template:
+        spec:
+          containers:
+          - name: locust
+            env:
+            - name: LOCUST_USERS
+              value: '1'
+            - name: LOCUST_SPAWN_RATE
+              value: '1'
+            - name: LOCUST_RUN_TIME
+              value: '10m'
+            - name: LOCUST_STOP_TIMEOUT
+              value: '5m'

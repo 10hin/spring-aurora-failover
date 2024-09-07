@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: locust-wrapper-selfsplit-reader
+  name: locust-raw-proxy-reader
   namespace: locust
 spec:
   completions: 3
@@ -18,9 +18,21 @@ spec:
             fieldRef:
               fieldPath: metadata.labels['batch.kubernetes.io/controller-uid']
         - name: DATA_SOURCE_HEADER_VALUE
-          value: wrapper-selfsplit
+          value: raw-proxy
         - name: TARGET_DB_ROLE
           value: READER
+        - name: LOCUST_EXPECT_WORKERS
+          value: '2'
+        - name: LOCUST_HOST
+          value: 'http://standarddriver.default.svc.cluster.local:8080'
+        - name: LOCUST_USERS
+          value: '100'
+        - name: LOCUST_SPAWN_RATE
+          value: '100'
+        - name: LOCUST_RUN_TIME
+          value: '1h'
+        - name: LOCUST_STOP_TIMEOUT
+          value: '5m'
         command:
         - sh
         - -c
@@ -31,12 +43,12 @@ spec:
               --locustfile /locustfiles/locustfile.py \
               --master \
               --headless \
-              --expect-workers 2 \
-              --host http://standarddriver.default.svc.cluster.local:8080 \
-              --users 100 \
-              --spawn-rate 10 \
-              --run-time 1h \
-              --stop-timeout 5m \
+              --expect-workers "${LOCUST_EXPECT_WORKERS}" \
+              --host "${LOCUST_HOST}" \
+              --users "${LOCUST_USERS}" \
+              --spawn-rate "${LOCUST_SPAWN_RATE}" \
+              --run-time "${LOCUST_RUN_TIME}" \
+              --stop-timeout "${LOCUST_STOP_TIMEOUT}" \
               --reset-stats \
               --csv "/locustreports/report_${DATA_SOURCE_HEADER_VALUE}_${TARGET_DB_ROLE}_${JOB_CONTROLLER_UID}" \
               --csv-full-history \
@@ -47,7 +59,7 @@ spec:
             locust \
               -f - \
               --worker \
-              --master-host locust-wrapper-selfsplit-reader-master.locust.svc.cluster.local \
+              --master-host locust-raw-proxy-reader-master.locust.svc.cluster.local \
               --headless \
               --reset-stats \
               ;
